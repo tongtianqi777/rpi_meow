@@ -30,8 +30,8 @@ CREATE TABLE IF NOT EXISTS meow_events (
 );
 """
 
-    def __init__(self, db_file):
-        self.conn = create_db_connection(db_file)
+    def __init__(self):
+        self.conn = create_db_connection(LOCAL_SQLITE_DB_FILE)
         self.run_query(DB.EVENT_TABLE_QUERY)
 
     def run_query(self, sql):
@@ -40,6 +40,9 @@ CREATE TABLE IF NOT EXISTS meow_events (
             c = self.conn.cursor()
             c.execute(sql)
             self.conn.commit()
+
+            rows = c.fetchall()
+            return rows
         except Error as e:
             print(e)
 
@@ -56,11 +59,28 @@ VALUES ("meow_button_push", "{}");
 
         self.run_query(query)
 
+    def get_latest_button_push_ts(self):
+        query = """
+SELECT
+    timestamp
+FROM
+    meow_events
+WHERE
+    event = "meow_button_push"
+ORDER BY
+    timestamp DESC
+LIMIT 1;
+"""
+
+        rows = self.run_query(query)
+        return rows[0][0]
+
 
 if __name__ == '__main__':
     # for dev only
     os.system("touch {}".format(LOCAL_SQLITE_DB_FILE))
-    db = DB(LOCAL_SQLITE_DB_FILE)
+    db = DB()
     db.add_button_push_event()
     time.sleep(3)
     db.add_button_push_event()
+    print(db.get_latest_button_push_ts())
