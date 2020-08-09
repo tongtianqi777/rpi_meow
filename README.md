@@ -1,1 +1,3 @@
-# rpi_meow
+# Raspberry Pi Meow
+For Zoey & Jake
+--TNP
