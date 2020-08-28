@@ -4,6 +4,7 @@ body {
   margin: 0;
   width: 800px;
   height: 480px;
+  overflow: hidden;
 }
 
 #video-bg {
