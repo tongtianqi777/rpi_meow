@@ -1,0 +1,40 @@
+body {
+  background-color: yellow;
+  border: solid 1px gray;
+  margin: 0;
+  width: 800px;
+  height: 480px;
+}
+
+#video-bg {
+  object-fit: cover;
+  width: 100vw;
+  height: 100vh;
+  position: fixed;
+  top: 0;
+  left: 0;
+}
+
+.content {
+  position: fixed;
+  bottom: 0;
+  background: rgba(256, 256, 256, 0.3);
+  color: #ffffff;
+  width: 100%;
+  height: 100%;
+  font-family: "Trebuchet MS", "Lucida Grande", "Lucida Sans Unicode", "Lucida Sans", Tahoma, sans-serif;
+}
+
+.desc {
+  font-size: 4em;
+  text-align: center;
+  margin: 1.5em 0 0.5em 0;
+  color: #568EA6;
+}
+
+#timer {
+  font-size: 8em;
+  text-align: center;
+  margin: 0.2em 0;
+  color: #F18C8E;
+}

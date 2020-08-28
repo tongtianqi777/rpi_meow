@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 import os
 from datetime import datetime
+import pytz
 import time
 import sqlite3
 from sqlite3 import Error
@@ -36,7 +37,6 @@ CREATE TABLE IF NOT EXISTS meow_events (
 
     def run_query(self, sql):
         try:
-            print("[QUERY] {}".format(sql))
             c = self.conn.cursor()
             c.execute(sql)
             self.conn.commit()
@@ -50,7 +50,7 @@ CREATE TABLE IF NOT EXISTS meow_events (
         self.conn()
 
     def add_button_push_event(self):
-        now_ts = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        now_ts = pytz.timezone("America/Los_Angeles").localize(datetime.now()).astimezone(pytz.utc).isoformat()
 
         query = """
 INSERT INTO meow_events (event, timestamp)
@@ -73,6 +73,8 @@ LIMIT 1;
 """
 
         rows = self.run_query(query)
+        if len(rows) == 0:
+            return None
         return rows[0][0]
 
 
