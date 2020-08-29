@@ -82,7 +82,6 @@ if __name__ == '__main__':
     # for dev only
     os.system("touch {}".format(LOCAL_SQLITE_DB_FILE))
     db = DB()
-    db.add_button_push_event()
-    time.sleep(3)
+    time.sleep(2)
     db.add_button_push_event()
     print(db.get_latest_button_push_ts())

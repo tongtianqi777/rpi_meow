@@ -8,20 +8,23 @@
   <meta name="description" content="The HTML5 Herald">
   <meta name="author" content="SitePoint">
 
-  <link rel="stylesheet" href="style.css?v=1.0">
+  <link rel="stylesheet" href="style.css">
 
 </head>
 
 <body onload="refresh()">
+
   <video autoplay muted loop id="video-bg">
     <source src="jake_lick_bg.mp4" type="video/mp4">
   </video>
   <div class="content">
     <p class="desc">Meow've been hungry for</p>
-    <h1 id="timer">4h 30m 12s</h1>
+    <h1 id="timer">loading...</h1>
   </div>
+  <canvas id="confetti-canvas"></canvas>
 </body>
 <script src="jquery-3.5.1.min.js"></script>
+<script type="text/javascript" src="confetti-js/index.min.js"></script>
 <script src="script.js"></script>
 
 </html>
