@@ -9,70 +9,91 @@ from sqlite3 import Error
 from config import *
 
 
-def create_db_connection(db_file):
-    """ create a database connection to a SQLite database """
-    conn = None
+def create_db_connections(db_file):
+    """ create a 2 database connections (one in file, and another in memory) to SQLite database """
+    file_conn = None
+    memory_conn = None
     try:
-        conn = sqlite3.connect(db_file)
+        file_conn = sqlite3.connect(db_file)
+        memory_conn = sqlite3.connect(":memory:")
         print(sqlite3.version)
 
-        return conn
+        return file_conn, memory_conn
     except Error as e:
         print("could not connect to DB: ", str(e))
 
-    return conn
+    return file_conn, memory_conn
 
 
 class DB(object):
+    # table in file
     EVENT_TABLE_QUERY = """
 CREATE TABLE IF NOT EXISTS meow_events (
     event text,
     timestamp text
 );
 """
+    # table in memory
+    BUTTON_PUSH_TABLE_QUERY = """
+CREATE TABLE IF NOT EXISTS button_push (
+    push_event text,
+    timestamp text
+);
+"""
+    # initial record for in-memory button push status
+    INIT_BUTTON_PUSH_TABLE_QUERY = """
+INSERT INTO button_push (push_event, timestamp)
+VALUES ("latest_button_down", ""); 
+"""
 
     def __init__(self):
-        self.conn = create_db_connection(LOCAL_SQLITE_DB_FILE)
-        self.run_query(DB.EVENT_TABLE_QUERY)
+        self.file_conn, self.memory_conn = create_db_connections(LOCAL_SQLITE_DB_FILE)
+        self.run_file_query(DB.EVENT_TABLE_QUERY)
+        self.run_memory_query(DB.BUTTON_PUSH_TABLE_QUERY)
+        self.run_memory_query(DB.INIT_BUTTON_PUSH_TABLE_QUERY)
 
-    def run_query(self, sql):
+    def run_file_query(self, sql):
+        return self.run_query(self.file_conn, sql)
+
+    def run_memory_query(self, sql):
+        return self.run_query(self.memory_conn, sql)
+
+    def run_query(self, conn, sql):
         try:
-            c = self.conn.cursor()
+            c = conn.cursor()
             c.execute(sql)
-            self.conn.commit()
+            conn.commit()
 
             rows = c.fetchall()
             return rows
         except Error as e:
             print(e)
 
-    def show_meta_table(self):
-        self.conn()
-
     def add_button_push_event(self):
         now_ts = pytz.timezone("America/Los_Angeles").localize(datetime.now()).astimezone(pytz.utc).isoformat()
 
-        query = """
+        self.run_file_query("""
 INSERT INTO meow_events (event, timestamp)
 VALUES ("meow_button_push", "{}"); 
-""".format(now_ts)
+""".format(now_ts))
 
-        self.run_query(query)
+        self.run_memory_query("""
+UPDATE button_push
+SET timestamp = "{}"
+WHERE
+    push_event = "latest_button_down";
+""".format(now_ts))
 
     def get_latest_button_push_ts(self):
-        query = """
+        rows = self.run_memory_query("""
 SELECT
     timestamp
 FROM
-    meow_events
+    button_push
 WHERE
-    event = "meow_button_push"
-ORDER BY
-    timestamp DESC
+    push_event = "latest_button_down"
 LIMIT 1;
-"""
-
-        rows = self.run_query(query)
+""")
         if len(rows) == 0:
             return None
         return rows[0][0]
