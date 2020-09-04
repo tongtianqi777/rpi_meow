@@ -43,14 +43,26 @@ CREATE TABLE IF NOT EXISTS button_push (
     # initial record for in-memory button push status
     INIT_BUTTON_PUSH_TABLE_QUERY = """
 INSERT INTO button_push (push_event, timestamp)
-VALUES ("latest_button_down", ""); 
+VALUES ("latest_button_down", "{}"); 
 """
 
     def __init__(self):
+        os.system("mkdir -p {}".format(os.path.dirname(LOCAL_SQLITE_DB_FILE)))
+        os.system("touch {}".format(LOCAL_SQLITE_DB_FILE))  # create the db file if doesn't exist
+
+        # get file and memory db connections
         self.file_conn, self.memory_conn = create_db_connections(LOCAL_SQLITE_DB_FILE)
+
+        # create tables if not exist
         self.run_file_query(DB.EVENT_TABLE_QUERY)
         self.run_memory_query(DB.BUTTON_PUSH_TABLE_QUERY)
-        self.run_memory_query(DB.INIT_BUTTON_PUSH_TABLE_QUERY)
+
+        # if there's record in file db, init the memory db with the latest push from file
+        latest_push_ts_from_file = self.get_latest_button_push_ts(from_memory=False)
+        if latest_push_ts_from_file:
+            self.run_memory_query(DB.INIT_BUTTON_PUSH_TABLE_QUERY.format(latest_push_ts_from_file))
+        else:
+            self.run_memory_query(DB.INIT_BUTTON_PUSH_TABLE_QUERY.format(""))
 
     def run_file_query(self, sql):
         return self.run_query(self.file_conn, sql)
@@ -84,8 +96,9 @@ WHERE
     push_event = "latest_button_down";
 """.format(now_ts))
 
-    def get_latest_button_push_ts(self):
-        rows = self.run_memory_query("""
+    def get_latest_button_push_ts(self, from_memory=True):
+        if from_memory:
+            rows = self.run_memory_query("""
 SELECT
     timestamp
 FROM
@@ -94,14 +107,29 @@ WHERE
     push_event = "latest_button_down"
 LIMIT 1;
 """)
-        if len(rows) == 0:
-            return None
-        return rows[0][0]
+            if len(rows) == 0:
+                return None
+            return rows[0][0]
+
+        else:
+            rows = self.run_file_query("""
+SELECT
+    timestamp
+FROM
+    meow_events
+WHERE
+    event = "meow_button_push"
+ORDER BY
+    timestamp DESC
+LIMIT 1;
+""")
+            if len(rows) == 0:
+                return None
+            return rows[0][0]
 
 
 if __name__ == '__main__':
     # for dev only
-    os.system("touch {}".format(LOCAL_SQLITE_DB_FILE))
     db = DB()
     time.sleep(2)
     db.add_button_push_event()

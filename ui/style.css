@@ -1,5 +1,5 @@
 body {
-  background-color: yellow;
+  background-color: black;
   border: solid 1px gray;
   margin: 0;
   width: 800px;
@@ -19,7 +19,6 @@ body {
 .content {
   position: fixed;
   bottom: 0;
-  background: rgba(256, 256, 256, 0.5);
   color: #ffffff;
   width: 100%;
   height: 100%;
@@ -30,14 +29,14 @@ body {
   font-size: 4em;
   text-align: center;
   margin: 1.5em 0 0.5em 0;
-  color: #931621;
+  color: #ffffff;
 }
 
 #timer {
   font-size: 10em;
   text-align: center;
   margin: 0.2em 0;
-  color: #931621;
+  color: #ffffff;
 }
 
 #confetti-canvas {
