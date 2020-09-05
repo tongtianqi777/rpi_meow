@@ -5,6 +5,11 @@ from flask_cors import CORS
 app = Flask(__name__)
 CORS(app)
 
+import logging
+log = logging.getLogger('werkzeug')
+log.setLevel(logging.ERROR)
+log.disabled = True
+app.logger.disabled = True
 
 @app.route('/latest_button_push', methods=['GET'])
 def latest_button_push():
