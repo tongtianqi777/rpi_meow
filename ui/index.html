@@ -15,16 +15,17 @@
 <body onload="refresh()">
 
   <video autoplay muted loop id="video-bg">
-    <source src="meow_rpi_bg.mp4" type="video/mp4">
+    <source src="blur_lights_bg.mp4" type="video/mp4">
   </video>
   <div class="content">
-    <p class="desc">Meow've been hungry for</p>
-    <h1 id="timer">loading...</h1>
+    <p id="cat-alert">No Cat Around</p>
+    <p id="timer">I saw some cat<br>1hr 37m ago</p>
+    <div id="last-cat-img-container">
+      <img src="/last_time_saw_cat_test.jpg">
+    </div>
   </div>
-  <canvas id="confetti-canvas"></canvas>
 </body>
 <script src="jquery-3.5.1.min.js"></script>
-<script type="text/javascript" src="confetti-js/index.min.js"></script>
 <script src="script.js"></script>
 
 </html>
