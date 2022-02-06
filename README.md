@@ -26,6 +26,7 @@ cd src
 # Python packages
 pip install redis
 pip install opencv-python
+pip install pytz
 sudo apt-get install libcblas-dev
 sudo apt-get install libhdf5-dev
 sudo apt-get install libhdf5-serial-dev
