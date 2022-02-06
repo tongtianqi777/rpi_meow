@@ -8,13 +8,13 @@ import cv2
 from detector.object_detector import ObjectDetector, Detection
 from detector.object_detector import ObjectDetectorOptions
 import detector.utils as utils
+from db import DB
+
 from redis_handle import RedisHandle
 from commons import SAW_CAT_EVENT
 
 
 # limiting the detect frequency cause CPU and GPU may get too hot
-from src.db import DB
-
 DETECT_FREQUENCY = 1  # every 1 second
 
 CAT_LABEL = "cat"  # assuming there's only this label that represents cats
