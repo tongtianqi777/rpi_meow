@@ -3,10 +3,12 @@
 import os
 from datetime import datetime
 import pytz
-import time
 import sqlite3
 from sqlite3 import Error
 from config import *
+
+EVENTS_HISTORY_TBL = "events_history"
+MEM_CACHE_TBL = "mem_cache"
 
 
 def create_db_connections(db_file):
@@ -26,24 +28,19 @@ def create_db_connections(db_file):
 
 
 class DB(object):
-    # table in file
-    EVENT_TABLE_QUERY = """
-CREATE TABLE IF NOT EXISTS meow_events (
+    # table in file (as permanent storage)
+    EVENTS_HISTORY_TBL_DDL = f"""
+CREATE TABLE IF NOT EXISTS {EVENTS_HISTORY_TBL} (
     event text,
     timestamp text
 );
 """
-    # table in memory
-    BUTTON_PUSH_TABLE_QUERY = """
-CREATE TABLE IF NOT EXISTS button_push (
-    push_event text,
-    timestamp text
+    # table in memory (as memory cache)
+    MEM_CACHE_TBL_DDL = f"""
+CREATE TABLE IF NOT EXISTS {MEM_CACHE_TBL} (
+    key text,
+    val text
 );
-"""
-    # initial record for in-memory button push status
-    INIT_BUTTON_PUSH_TABLE_QUERY = """
-INSERT INTO button_push (push_event, timestamp)
-VALUES ("latest_button_down", "{}"); 
 """
 
     def __init__(self):
@@ -54,23 +51,16 @@ VALUES ("latest_button_down", "{}");
         self.file_conn, self.memory_conn = create_db_connections(LOCAL_SQLITE_DB_FILE)
 
         # create tables if not exist
-        self.run_file_query(DB.EVENT_TABLE_QUERY)
-        self.run_memory_query(DB.BUTTON_PUSH_TABLE_QUERY)
-
-        # if there's record in file db, init the memory db with the latest push from file
-        latest_push_ts_from_file = self.get_latest_button_push_ts(from_memory=False)
-        if latest_push_ts_from_file:
-            self.run_memory_query(DB.INIT_BUTTON_PUSH_TABLE_QUERY.format(latest_push_ts_from_file))
-        else:
-            self.run_memory_query(DB.INIT_BUTTON_PUSH_TABLE_QUERY.format(""))
+        self.run_file_query(DB.EVENTS_HISTORY_TBL_DDL)
+        self.run_memory_query(DB.MEM_CACHE_TBL_DDL)
 
     def run_file_query(self, sql):
-        return self.run_query(self.file_conn, sql)
+        return self._run_query(self.file_conn, sql)
 
     def run_memory_query(self, sql):
-        return self.run_query(self.memory_conn, sql)
+        return self._run_query(self.memory_conn, sql)
 
-    def run_query(self, conn, sql):
+    def _run_query(self, conn, sql):
         try:
             c = conn.cursor()
             c.execute(sql)
@@ -81,56 +71,29 @@ VALUES ("latest_button_down", "{}");
         except Error as e:
             print(e)
 
-    def add_button_push_event(self):
-        now_ts = pytz.timezone("America/Los_Angeles").localize(datetime.now()).astimezone(pytz.utc).isoformat()
-
-        self.run_file_query("""
-INSERT INTO meow_events (event, timestamp)
-VALUES ("meow_button_push", "{}"); 
-""".format(now_ts))
-
-        self.run_memory_query("""
-UPDATE button_push
-SET timestamp = "{}"
-WHERE
-    push_event = "latest_button_down";
-""".format(now_ts))
-
-    def get_latest_button_push_ts(self, from_memory=True):
-        if from_memory:
-            rows = self.run_memory_query("""
-SELECT
-    timestamp
-FROM
-    button_push
-WHERE
-    push_event = "latest_button_down"
-LIMIT 1;
+    def add_event_history(self, event: str, ts: str=None, timezone="America/Los_Angeles"):
+        """
+        add event to history using Los Angeles timezone as default
+        :param event: event name
+        :param ts: timestamp in ISO format. if not given the current time will be used.
+        :param timezone: the name of timezone
+        """
+        ts_val = pytz.timezone(timezone).localize(datetime.now()).astimezone(pytz.utc).isoformat() if not ts else ts
+        self.run_file_query(f"""
+INSERT INTO {EVENTS_HISTORY_TBL} (event, timestamp)
+VALUES ("{event}", "{ts_val}"); 
 """)
-            if len(rows) == 0:
-                return None
-            return rows[0][0]
 
-        else:
-            rows = self.run_file_query("""
-SELECT
-    timestamp
-FROM
-    meow_events
+    def update_mem_cache(self, key, val):
+        self.run_memory_query(f"""
+UPDATE {MEM_CACHE_TBL}
+SET val = "{val}"
 WHERE
-    event = "meow_button_push"
-ORDER BY
-    timestamp DESC
-LIMIT 1;
+    key = "{key}";
 """)
-            if len(rows) == 0:
-                return None
-            return rows[0][0]
 
 
 if __name__ == '__main__':
     # for dev only
     db = DB()
-    time.sleep(2)
-    db.add_button_push_event()
-    print(db.get_latest_button_push_ts())
+    db.add_event_history('test')
