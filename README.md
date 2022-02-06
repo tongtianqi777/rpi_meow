@@ -2,9 +2,30 @@
 For Zoey & Jake
 --TNP
 
+## Python Env
+```shell
+# you should do these before you do anything
+# activate the right Python env
+source ~/tflite/bin/activate
+python3 -m venv ~/tflite/
+```
+
 ## Setup
 ```shell
-pip3 install opencv-python
+# Install Redis as in-mem cache
+wget http://download.redis.io/releases/redis-6.0.6.tar.gz
+tar xzf redis-6.0.6.tar.gz
+cd redis-6.0.6
+make
+
+cd src
+./redis-server
+```
+
+```shell
+# Python packages
+pip install redis
+pip install opencv-python
 sudo apt-get install libcblas-dev
 sudo apt-get install libhdf5-dev
 sudo apt-get install libhdf5-serial-dev
@@ -16,10 +37,6 @@ sudo apt-get install libqt4-test
 
 ## Deployment
 ```shell
-# activate the right Python env
-source ~/tflite/bin/activate
-python3 -m venv ~/tflite/
-
 # run these in separate processes
 python detect.py
 python api.py
