@@ -16,6 +16,10 @@ sudo apt-get install libqt4-test
 
 ## Deployment
 ```shell
+# activate the right Python env
+source ~/tflite/bin/activate
+python3 -m venv ~/tflite/
+
 # run these in separate processes
 python detect.py
 python api.py
