@@ -11,7 +11,7 @@ import detector.utils as utils
 from db import DB
 
 from redis_handle import RedisHandle
-from commons import SAW_CAT_EVENT
+from commons import SAW_CAT_EVENT, SAW_CAT, LAST_TIME_SAW_CAT
 from config import LAST_TIME_SAW_CAT_IMG
 
 DETECT_FREQUENCY = 1  # every 1 second. limiting the detect frequency cause CPU and GPU may get too hot
@@ -81,8 +81,8 @@ def run(model: str, camera_id: int, width: int, height: int, num_threads: int,
 
         if saw_cat(detections):
             curr_time = time.time()
-            redis_handle.set('saw_cat', 'true')
-            redis_handle.set('last_time_saw_cat', str(curr_time))
+            redis_handle.set(SAW_CAT, 'true')
+            redis_handle.set(LAST_TIME_SAW_CAT, str(curr_time))
 
             if curr_time - last_time_saw_cat > ONE_MIN:
                 # keep a record only when it has been more than 1 min (to reduce DB size)
@@ -90,7 +90,7 @@ def run(model: str, camera_id: int, width: int, height: int, num_threads: int,
                 cv2.imwrite(LAST_TIME_SAW_CAT_IMG, image)  # write the current shot as image to disk
                 last_time_saw_cat = curr_time
         else:
-            redis_handle.set('saw_cat', 'false')
+            redis_handle.set(SAW_CAT, 'false')
 
         # Calculate the FPS
         if counter % fps_avg_frame_count == 0:
