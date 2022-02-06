@@ -12,10 +12,9 @@ from db import DB
 
 from redis_handle import RedisHandle
 from commons import SAW_CAT_EVENT
+from config import LAST_TIME_SAW_CAT_IMG
 
-
-# limiting the detect frequency cause CPU and GPU may get too hot
-DETECT_FREQUENCY = 1  # every 1 second
+DETECT_FREQUENCY = 1  # every 1 second. limiting the detect frequency cause CPU and GPU may get too hot
 
 CAT_LABEL = "cat"  # assuming there's only this label that represents cats
 SCORE_THRESHOLD = 0.5  # only when it's above this value do we consider a trustworthy detection
@@ -85,8 +84,9 @@ def run(model: str, camera_id: int, width: int, height: int, num_threads: int,
             redis_handle.set('last_time_saw_cat', str(curr_time))
 
             if curr_time - last_time_saw_cat > ONE_MIN:
-                # adding event to DB only when it has been more than 1 min (to reduce DB size)
-                db.add_event_history(SAW_CAT_EVENT)
+                # keep a record only when it has been more than 1 min (to reduce DB size)
+                db.add_event_history(SAW_CAT_EVENT)  # log to DB
+                cv2.imwrite(LAST_TIME_SAW_CAT_IMG, image)  # write the current shot as image to disk
                 last_time_saw_cat = curr_time
         else:
             redis_handle.set('saw_cat', 'false')
