@@ -92,8 +92,17 @@ WHERE
     key = "{key}";
 """)
 
+    def get_all_event_history(self):
+        return self.run_file_query(f"""
+SELECT event, timestamp
+FROM {EVENTS_HISTORY_TBL}; 
+""")
+
 
 if __name__ == '__main__':
     # for dev only
     db = DB()
-    db.add_event_history('test')
+
+    all_event_history = db.get_all_event_history()
+    for row in all_event_history:
+        print(row)
