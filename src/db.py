@@ -18,7 +18,7 @@ def create_db_connections(db_file):
     try:
         file_conn = sqlite3.connect(db_file)
         memory_conn = sqlite3.connect(":memory:")
-        print(sqlite3.version)
+        print("connected to sqlite: ", sqlite3.version)
 
         return file_conn, memory_conn
     except Error as e:
