@@ -54,7 +54,7 @@ def run(model: str, camera_id: int, width: int, height: int, num_threads: int,
     font_thickness = 1
     fps_avg_frame_count = 10
 
-    last_time_saw_cat = time.time()
+    last_time_saw_cat = time.time() - ONE_MIN  # so that we can catch it if cat shows up right after launch
 
     # Initialize the object detection model
     options = ObjectDetectorOptions(
@@ -73,7 +73,8 @@ def run(model: str, camera_id: int, width: int, height: int, num_threads: int,
             )
 
         counter += 1
-        image = cv2.flip(image, 1)
+        image = cv2.flip(image, 0)  # flip image vertically
+        image = cv2.flip(image, 1)  # flip image horizontally
 
         # Run object detection estimation using the model.
         detections = detector.detect(image)
