@@ -1,3 +1,5 @@
+import time
+
 import redis
 
 
@@ -15,8 +17,9 @@ class RedisHandle:
 if __name__ == '__main__':
     # for dev only
     r = RedisHandle()
-    print(r.set('foo', 'bar'))
-    print(r.get('foo'))
 
-    print(r.set('some_bool_key', 'true'))
-    print(r.get('some_bool_key'))
+    # keep checking Redis to see if cat was detected
+    while True:
+        print("checking if cats were saw...")
+        print(r.get('saw_cat'))
+        time.sleep(1)
