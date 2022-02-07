@@ -17,6 +17,7 @@ function setIntervals() {
 }
 
 function renderSawCat(sawCat) {
+    console.log("rending saw cat.. sawCat = " + sawCat);
     if (sawCat === "true") {
         $("#cat-alert").text("Hello Kitties!");
         $("#cat-alert").addClass("highlight");
@@ -32,6 +33,8 @@ function padNum(number) {
 }
 
 function renderLastTimeSawCat(sawCatTs) {
+    console.log("rending saw cat ts.. sawCatTs = " + sawCatTs);
+
     if (sawCatTs.length == 0) {
         $("#timer").text("No Cats were seen<br>so far");
         return;
