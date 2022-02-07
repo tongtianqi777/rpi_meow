@@ -27,6 +27,7 @@ cd src
 pip install redis
 pip install opencv-python
 pip install pytz
+pip install flask
 pip install Flask-Cors
 sudo apt-get install libcblas-dev
 sudo apt-get install libhdf5-dev
