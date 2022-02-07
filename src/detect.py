@@ -82,7 +82,7 @@ def run(model: str, camera_id: int, width: int, height: int, num_threads: int,
         if saw_cat(detections):
             curr_time = time.time()
             redis_handle.set(SAW_CAT, 'true')
-            redis_handle.set(LAST_TIME_SAW_CAT, str(curr_time))
+            redis_handle.set(LAST_TIME_SAW_CAT, str(curr_time))  # unit is second
 
             if curr_time - last_time_saw_cat > ONE_MIN:
                 # keep a record only when it has been more than 1 min (to reduce DB size)

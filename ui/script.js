@@ -17,7 +17,7 @@ function setIntervals() {
 }
 
 function renderSawCat(sawCat) {
-    console.log("rending saw cat.. sawCat = " + sawCat);
+//    console.log("rending saw cat.. sawCat = " + sawCat);
     if (sawCat === "true") {
         $("#cat-alert").text("Hello Kitties!");
         $("#cat-alert").addClass("highlight");
@@ -33,18 +33,18 @@ function padNum(number) {
 }
 
 function renderLastTimeSawCat(sawCatTs) {
-    console.log("rending saw cat ts.. sawCatTs = " + sawCatTs);
+//    console.log("rending saw cat ts.. sawCatTs = " + sawCatTs);
 
     if (sawCatTs.length == 0) {
-        $("#timer").text("No Cats were seen<br>so far");
+        $("#timer").html("No Cats were seen<br>so far");
         return;
     }
-    const date = new Date(sawCatTs);
+    const date = new Date(sawCatTs * 1000);  // because sawCatTs has second as unit
     const diff = Date.now() - date;
 
     var sec = Math.floor(diff % (1000 * 60) / 1000);
     var min = Math.floor(diff % (1000 * 60 * 60) / (1000 * 60));
     var hour = Math.floor(diff / (1000 * 60 * 60));
 
-    $("#timer").text("Cats were seen<br>" + hour + 'h ' + min + 'm ' + sec + "s ago");
+    $("#timer").html("Cats were seen<br>" + hour + 'h ' + min + 'm ' + sec + "s ago");
 }
