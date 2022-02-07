@@ -46,5 +46,12 @@ function renderLastTimeSawCat(sawCatTs) {
     var min = Math.floor(diff % (1000 * 60 * 60) / (1000 * 60));
     var hour = Math.floor(diff / (1000 * 60 * 60));
 
-    $("#timer").html("Cats were seen<br>" + hour + 'h ' + min + 'm ' + sec + "s ago");
+    timeStr = sec + "s ago";
+    if (min > 0) {
+        timeStr = min + 'm ' + timeStr;
+    }
+    if (hour > 0) {
+        timeStr = hour + 'h ' + timeStr;
+    }
+    $("#timer").html("Cats were seen<br>" + timeStr);
 }
