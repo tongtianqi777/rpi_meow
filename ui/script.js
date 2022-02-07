@@ -10,10 +10,10 @@ function httpGetAsync(api, callback)
 function setIntervals() {
   // talk to these APIs every second (these run on Redis on the back)
   setInterval(() => { httpGetAsync(SAW_CAT_API, renderSawCat)}, 1000);
-  setInterval(() => { httpGetAsync(LAST_TIME_SAW_CAT_TS_API, renderLastTimeSawCat)}, 1000);
+  setInterval(() => { httpGetAsync(LAST_TIME_SAW_CAT_TS_API, renderLastTimeSawCatTime)}, 1000);
 
   // talk to these APIs every 10 second (less frequently because they are I/O intense)
-  // todo
+  setInterval(() => { renderLastTimeSawCatImg() }, 2000);  // todo: change to 10s
 }
 
 function renderSawCat(sawCat) {
@@ -32,7 +32,7 @@ function padNum(number) {
   return number;
 }
 
-function renderLastTimeSawCat(sawCatTs) {
+function renderLastTimeSawCatTime(sawCatTs) {
 //    console.log("rending saw cat ts.. sawCatTs = " + sawCatTs);
 
     if (sawCatTs.length == 0) {
@@ -54,4 +54,9 @@ function renderLastTimeSawCat(sawCatTs) {
         timeStr = hour + 'h ' + timeStr;
     }
     $("#timer").html("Cats were seen<br>" + timeStr);
+}
+
+function renderLastTimeSawCatImg() {
+    // using a timestamp to force image refresh
+    $("#last-cat-img").attr("src", LAST_TIME_SAW_CAT_IMG_API + "?" + new Date().getTime());
 }
